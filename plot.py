@@ -1,5 +1,6 @@
 from matplotlib import pyplot as plt
 import numpy as np
+import statistics
 
 xcor = []
 ycor = []
@@ -25,6 +26,7 @@ plt.ylim(-1000,0)
 
 plt.xlabel('Time', fontsize=16)
 plt.ylabel('Total Energy', fontsize=16)
-
+percentError = statistics.stdev(ycor)/statistics.mean(ycor)
+print(percentError)
 plt.scatter(xcor, ycor, color="red",linewidth=0.5,marker='.')
 plt.show()
