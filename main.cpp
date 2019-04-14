@@ -21,7 +21,7 @@ int flag = 0;
 int main(void)
 {
     GLFWwindow* window;
-    srand(time(NULL));
+    srand(time(0));
     /* Initialize the library */
     if (!glfwInit())
         return -1;
@@ -55,12 +55,13 @@ int main(void)
         /* Render here */
 		// glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-
+        double TotalEnergy = 0.0;
+        double TotalMomentum = 0.0;
         for(int i = 0; i < collection.size(); i++)
         {
-            collection[i].run(collection,i);
+            TotalEnergy += collection[i].run(collection,i);
         }
-        
+        // cout<<0.00001 * TotalEnergy<<endl;
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
 
@@ -99,11 +100,11 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_S && action == GLFW_PRESS && flag == 0){
-        for(int i = 0; i < 2; i++)
+        for(int i = 0; i < 1000; i++)
         {
             collection.push_back(Boid((double)SCREEN_WIDTH/2, (double)SCREEN_WIDTH/2));
         }
-        cout<<"Hello!"<<endl;
+        // cout<<"Hello!"<<endl;
         flag = 1;
     }
 }

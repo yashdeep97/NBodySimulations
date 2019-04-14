@@ -25,6 +25,7 @@ class Boid
         double posX, posY;
         double velX, velY;
         double accX, accY;
+        double potentialEnergy;
         // double r;
         // double maxForce, maxVelocity, minVelocity;
         
@@ -33,14 +34,18 @@ class Boid
         Boid(double x, double y){
             posX = (rand() % 1000);
             posY = (rand() % 1000);
-            // velX = (pow(-1, rand()%2)) * (rand() % 10);
-            // velY = (pow(-1, rand()%2)) * (rand() % 10);
-            // velX /= 500;
-            // velY /= 500;
             velX = 0;
             velY = 0;
+
+            // posX = x;
+            // posY = y;
+            // velX = pow(-1, (rand() % 2)) * (rand() % 100);
+            // velY = pow(-1, (rand() % 2)) * (rand() % 100);
+
             accX = 0;
             accY = 0;
+
+            potentialEnergy = 0.0;
             // maxVelocity = 5.0;
             // minVelocity = 0.1;
             // maxForce = 0.05;
@@ -49,67 +54,75 @@ class Boid
 
         // draw the particles
         void draw(int particleIndex){
-            int r = 10;
+            int r = 3;
             int segments = 10;
-            // glBegin( GL_TRIANGLE_FAN );
-            //     glVertex2f(posX, posY);
-            //     if(particleIndex == 0){
-            //         glColor3f(1, 0, 0);
-            //     }
-            //     else{
-            //         glColor3f(0, 0, 1);
-            //     }
-            //     for( int n = 0; n <= segments; ++n ) {
-            //         float const t = 2 * M_PI * (float)n / (float)segments;
-            //         glVertex2f(posX + sin(t) * r, posY + cos(t) * r);
-            //     }
-            // glEnd();
-            glBegin(GL_QUADS);
-            if(particleIndex == 0){
-                glColor3f(1, 0, 0);
-            }
-            else{
-                glColor3f(0, 0, 1);
-            }
-            glVertex3f(posX + 10, posY + 10, 0);
-            glVertex3f(posX + 10, posY - 10, 0);
-            glVertex3f(posX - 10, posY - 10, 0);
-            glVertex3f(posX - 10, posY + 10, 0);
+            glBegin( GL_TRIANGLE_FAN );
+                glVertex2f(posX, posY);
+                // if(particleIndex == 0){
+                //     glColor3f(1, 0, 0);
+                // }
+                // else{
+                //     glColor3f(0, 0, 1);
+                // }
+                for( int n = 0; n <= segments; ++n ) {
+                    float const t = 2 * M_PI * (float)n / (float)segments;
+                    glVertex2f(posX + sin(t) * r, posY + cos(t) * r);
+                }
             glEnd();
+            // glBegin(GL_QUADS);
+            // if(particleIndex == 0){
+            //     glColor3f(1, 0, 0);
+            // }
+            // else{
+            //     glColor3f(0, 0, 1);
+            // }
+            // glVertex3f(posX + 10, posY + 10, 0);
+            // glVertex3f(posX + 10, posY - 10, 0);
+            // glVertex3f(posX - 10, posY - 10, 0);
+            // glVertex3f(posX - 10, posY + 10, 0);
+            // glEnd();
 
         }
 
-        void update(){
-            usleep(10);
-            velX += accX;
-            velY += accY;
-            posX += velX;
-            posY += velY;
+        double update(){
+                    
+            velX += accX*0.001;
+            velY += accY*0.001;
+            posX += velX*0.001;
+            posY += velY*0.001;
+
+            double K = ((velX*velX) + (velY*velY))/2;
+            return K;
             
         }
 
+        // return potential energy
         void applyGravity(vector<Boid> collection, int particleIndex){
 
             double sqDistance, force, distance;
             accX = 0.0;
             accY = 0.0;
+            potentialEnergy = 0.0;
             for(int i = 0; i < collection.size(); i++)
             {
                 if (i != particleIndex) {
                     sqDistance = (collection[i].posX - posX) * (collection[i].posX - posX) + (collection[i].posY - posY) * (collection[i].posY - posY);
                     distance = sqrt(sqDistance);
-                    force = (1000 * distance) / pow(sqrt(sqDistance + E2),3);
-                    if(sqDistance == 0){
-                        cout<<"dist 0"<<endl;
+                    force = (10000) / (sqDistance + E2);
+                    if(sqDistance < 10){
+                        // cout<<"dist 0"<<endl;
                     } else {
                         accX += force * (collection[i].posX - posX)/distance;
                         accY += force * (collection[i].posY - posY)/distance;
                     }
+                    // if (distance != 0) {
+                    //     potentialEnergy -= (10000.0 / (double)distance);
+                    // }
+                    
                 }  
                             
             }
-            cout<<"Acc of"<<particleIndex<<" : "<<accX<<" "<<accY<<endl;
-
+            // return potentialEnergy;
         }
 
         // void limitVelocity(){
@@ -128,12 +141,13 @@ class Boid
         // }
 
         
-        void run(vector<Boid> collection, int particleIndex){
+        double run(vector<Boid> collection, int particleIndex){
             applyGravity(collection, particleIndex);
+            // cout<<"U: "<<U<<endl;
             // limitVelocity();
-            update();
+            double momentum = update();
             draw(particleIndex);
-
+            return (momentum);
         }        
 };
 
